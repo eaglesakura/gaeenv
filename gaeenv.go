@@ -25,7 +25,7 @@ If "gaeenv" library use, All environment variables are equals.
 		2. app.yaml environments
 		3. os.Getenv environments
  * [for UnitTest] Current directory change to included app.yaml directory.
- 	* Current directory equals gofile directory at "goapp test" call time.
+ 	* Current directory is equals "goapp serve".
 
 ja)
 GAE/Goのリポジトリ構成を指定する.
