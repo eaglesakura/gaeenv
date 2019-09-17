@@ -2,7 +2,6 @@ package gaeenv
 
 import (
 	"fmt"
-	"google.golang.org/appengine"
 	"os"
 	"strconv"
 	"strings"
@@ -45,6 +44,15 @@ type AppengineEnvironment struct {
 		"gae/app.yaml"
 	*/
 	AppYamlPath string
+
+	/*
+		en)
+		This runtime is debug(develop, or Unit Test) mode.
+
+		ja)
+		実行環境がDebug(開発環境、もしくはUnitTest）であればtrueを指定する
+	*/
+	DevelopMode bool
 
 	/*
 		en)
@@ -114,10 +122,6 @@ type EnvironmentListFile struct {
 		"../env.list"
 	*/
 	Path string
-}
-
-func isDevAppServer() bool {
-	return appengine.IsDevAppServer()
 }
 
 /*
@@ -265,8 +269,10 @@ func Init(repo *AppengineEnvironment) error {
 	}
 
 	// カレントディレクトリを指定
-	if err := pushError(updateWorkspacePath(yamlDirectory)); err != nil {
-		return err
+	if repo.DevelopMode {
+		if err := pushError(updateWorkspacePath(yamlDirectory)); err != nil {
+			return err
+		}
 	}
 
 	// app.yamlからデフォルトの環境変数を設定
@@ -276,7 +282,7 @@ func Init(repo *AppengineEnvironment) error {
 
 	// env.listのセットアップ
 	for _, file := range repo.EnvListFiles {
-		if file.DevOnly && !isDevAppServer() {
+		if file.DevOnly && !repo.DevelopMode {
 			// 開発環境のみセットアップする
 			continue
 		}

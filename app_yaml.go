@@ -48,7 +48,7 @@ func parseAppYaml(yamlFileName string) error {
 		if !ok {
 			// 環境変数が存在しないので、app.yaml値を優先
 			envCache[envKey] = envValue
-			os.Setenv(envKey, envValue)
+			_ = os.Setenv(envKey, envValue)
 		} else {
 			// 環境変数が存在するので、環境変数を優先
 			envCache[envKey] = osValue

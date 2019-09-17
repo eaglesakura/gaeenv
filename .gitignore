@@ -29,3 +29,5 @@ src/jwt.txt
 test.sh
 /.xpipeline/
 /openapi.yaml
+/.gocache
+go.sum
