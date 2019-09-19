@@ -8,23 +8,7 @@ import (
 	"reflect"
 )
 
-/*
-app.yamlを解析し、env_variablesの値を規定値としてセットアップする.
-
-すでにセットアップされている環境変数が優先される.
-*/
-func parseAppYaml(yamlFileName string) error {
-	file, err := ioutil.ReadFile(yamlFileName)
-	if err != nil {
-		return err
-	}
-
-	var parsedYaml map[string]interface{}
-	err = yaml.Unmarshal(file, &parsedYaml)
-	if err != nil {
-		return err
-	}
-
+func applyEnvVariables(parsedYaml map[string]interface{}) error {
 	envList, ok := parsedYaml["env_variables"]
 	if !ok {
 		// envListが存在しない
@@ -54,5 +38,36 @@ func parseAppYaml(yamlFileName string) error {
 			envCache[envKey] = osValue
 		}
 	}
+
+	return nil
+}
+
+/*
+app.yamlを解析し、env_variablesの値を規定値としてセットアップする.
+
+すでにセットアップされている環境変数が優先される.
+*/
+func parseAppYaml(yamlFileName string) error {
+	file, err := ioutil.ReadFile(yamlFileName)
+	if err != nil {
+		return err
+	}
+
+	var parsedYaml map[string]interface{}
+	err = yaml.Unmarshal(file, &parsedYaml)
+	if err != nil {
+		return err
+	}
+
+	// apply "env_variables:" block.
+	if err := applyEnvVariables(parsedYaml); err != nil {
+		return err
+	}
+
+	// apply default environments
+	if err := applyAppengineEnvironments(parsedYaml); err != nil {
+		return err
+	}
+
 	return nil
 }

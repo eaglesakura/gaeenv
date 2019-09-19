@@ -1,0 +1,13 @@
+service: service-name-v1
+runtime: go112
+
+handlers:
+  - url: /api/.*
+    script: auto
+    secure: always
+
+# Default environment variables.
+env_variables:
+  CI_VERSION: 1
+  BUILD_DATE: 1986-10-26 12:34.56
+  GIT_REVISION: HEAD

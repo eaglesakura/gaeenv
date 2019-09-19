@@ -158,7 +158,7 @@ func applyEnv(envList map[string]string) error {
 			return fmt.Errorf("error, environment variable key[%v]. not found in app.yaml", key)
 		} else {
 			envCache[key] = value
-			os.Setenv(key, value)
+			_ = os.Setenv(key, value)
 		}
 	}
 	return nil
