@@ -10,23 +10,29 @@ import (
 
 func applyAppengineEnvironments(developMode bool, parsedYaml map[string]interface{}) error {
 	if !developMode {
-		return nil
+		// load by AppEngine
+		envCache["GAE_VERSION"] = os.Getenv("GAE_VERSION")
+		envCache["GAE_INSTANCE"] = os.Getenv("GAE_INSTANCE")
+		envCache["GAE_SERVICE"] = os.Getenv("GAE_SERVICE")
+	} else {
+		// insert mock.
+		service, ok := parsedYaml["service"]
+		if !ok {
+			service = "default"
+		}
+
+		envCache["GAE_VERSION"] = "__GAE_VERSION__"
+		envCache["GAE_INSTANCE"] = "__GAE_INSTANCE__"
+		envCache["GAE_SERVICE"] = fmt.Sprintf("%v", service)
+
+		_ = os.Setenv("GAE_VERSION", "__GAE_VERSION__")
+		_ = os.Setenv("GAE_INSTANCE", "__GAE_INSTANCE__")
+		_ = os.Setenv("GAE_SERVICE", fmt.Sprintf("%v", service))
 	}
 
-	service, ok := parsedYaml["service"]
-	if !ok {
-		service = "default"
-	}
-
-	fmt.Printf("Apply: GAE_SERVICE=%v\n", service)
-
-	envCache["GAE_VERSION"] = "__GAE_VERSION__"
-	envCache["GAE_INSTANCE"] = "__GAE_INSTANCE__"
-	envCache["GAE_SERVICE"] = fmt.Sprintf("%v", service)
-
-	_ = os.Setenv("GAE_VERSION", "__GAE_VERSION__")
-	_ = os.Setenv("GAE_INSTANCE", "__GAE_INSTANCE__")
-	_ = os.Setenv("GAE_SERVICE", fmt.Sprintf("%v", service))
+	fmt.Println("gaeenv.GAE_SERVICE: " + Getenv("GAE_SERVICE"))
+	fmt.Println("gaeenv.GAE_VERSION: " + Getenv("GAE_VERSION"))
+	fmt.Println("gaeenv.GAE_INSTANCE: " + Getenv("GAE_INSTANCE"))
 	return nil
 }
 
