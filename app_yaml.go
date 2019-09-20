@@ -8,7 +8,29 @@ import (
 	"reflect"
 )
 
-func applyEnvVariables(parsedYaml map[string]interface{}) error {
+func applyAppengineEnvironments(developMode bool, parsedYaml map[string]interface{}) error {
+	if !developMode {
+		return nil
+	}
+
+	service, ok := parsedYaml["service"]
+	if !ok {
+		service = "default"
+	}
+
+	fmt.Printf("Apply: GAE_SERVICE=%v\n", service)
+
+	envCache["GAE_VERSION"] = "__GAE_VERSION__"
+	envCache["GAE_INSTANCE"] = "__GAE_INSTANCE__"
+	envCache["GAE_SERVICE"] = fmt.Sprintf("%v", service)
+
+	_ = os.Setenv("GAE_VERSION", "__GAE_VERSION__")
+	_ = os.Setenv("GAE_INSTANCE", "__GAE_INSTANCE__")
+	_ = os.Setenv("GAE_SERVICE", fmt.Sprintf("%v", service))
+	return nil
+}
+
+func applyEnvVariables(developMode bool, parsedYaml map[string]interface{}) error {
 	envList, ok := parsedYaml["env_variables"]
 	if !ok {
 		// envListが存在しない
@@ -47,7 +69,7 @@ app.yamlを解析し、env_variablesの値を規定値としてセットアッ�
 
 すでにセットアップされている環境変数が優先される.
 */
-func parseAppYaml(yamlFileName string) error {
+func applyAppYaml(developMode bool, yamlFileName string) error {
 	file, err := ioutil.ReadFile(yamlFileName)
 	if err != nil {
 		return err
@@ -60,12 +82,12 @@ func parseAppYaml(yamlFileName string) error {
 	}
 
 	// apply "env_variables:" block.
-	if err := applyEnvVariables(parsedYaml); err != nil {
+	if err := applyEnvVariables(developMode, parsedYaml); err != nil {
 		return err
 	}
 
 	// apply default environments
-	if err := applyAppengineEnvironments(parsedYaml); err != nil {
+	if err := applyAppengineEnvironments(developMode, parsedYaml); err != nil {
 		return err
 	}
 

@@ -276,7 +276,7 @@ func Init(repo *AppengineEnvironment) error {
 	}
 
 	// app.yamlからデフォルトの環境変数を設定
-	if err := pushError(parseAppYaml(yamlFileName)); err != nil {
+	if err := pushError(applyAppYaml(repo.DevelopMode, yamlFileName)); err != nil {
 		return err
 	}
 
